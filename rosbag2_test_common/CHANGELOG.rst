@@ -2,6 +2,7 @@
 Changelog for package rosbag2_test_common
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+<<<<<<< HEAD
 0.3.6 (2021-01-05)
 ------------------
 * Update maintainer list for Foxy (`#551 <https://github.com/ros2/rosbag2/issues/551>`_)
@@ -15,6 +16,10 @@ Changelog for package rosbag2_test_common
 
 0.3.3 (2020-06-23)
 ------------------
+=======
+Forthcoming
+-----------
+>>>>>>> Changelog.
 
 0.4.0 (2020-11-19)
 ------------------

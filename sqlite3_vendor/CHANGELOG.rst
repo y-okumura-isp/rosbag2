@@ -3,6 +3,7 @@ Changelog for package sqlite3_vendor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+<<<<<<< HEAD
 0.3.6 (2021-01-05)
 ------------------
 * Update maintainer list for Foxy (`#551 <https://github.com/ros2/rosbag2/issues/551>`_)
@@ -18,6 +19,10 @@ Changelog for package sqlite3_vendor
 ------------------
 * use interface_include_directories in find_sqlite3 (`#426 <https://github.com/ros2/rosbag2/issues/426>`_) (`#444 <https://github.com/ros2/rosbag2/issues/444>`_)
 * Contributors: Karsten Knese
+=======
+Forthcoming
+-----------
+>>>>>>> Changelog.
 
 0.4.0 (2020-11-19)
 ------------------
