@@ -69,12 +69,17 @@ void CacheConsumer::exec_consuming()
     // swap producer buffer with consumer buffer
     message_cache_->wait_for_buffer();
 
-    // consume all the data from consumer buffer
-    auto consumer_buffer = message_cache_->consumer_buffer();
+    // This callback can take some time to complete.  In order to keep
+    // change_consume_callback() from blocking while that is happening, we take
+    // a copy of the std::function and use that.
+    consume_callback_function_t callback_for_this_loop;
     {
       std::lock_guard<std::mutex> lg(consumer_mutex_);
-      consume_callback_(consumer_buffer->data());
+      callback_for_this_loop = consume_callback_;
     }
+    // consume all the data from consumer buffer
+    auto consumer_buffer = message_cache_->consumer_buffer();
+    callback_for_this_loop(consumer_buffer->data());
     consumer_buffer->clear();
 
     if (flushing) {exit_flag = true;}  // this was the final run
