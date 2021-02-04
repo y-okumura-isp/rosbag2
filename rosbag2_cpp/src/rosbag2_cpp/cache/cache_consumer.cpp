@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include <memory>
+#include <mutex>
+#include <thread>
 
 #include "rosbag2_cpp/cache/cache_consumer.hpp"
 #include "rosbag2_cpp/logging.hpp"
@@ -53,11 +55,8 @@ void CacheConsumer::close()
 void CacheConsumer::change_consume_callback(
   CacheConsumer::consume_callback_function_t consume_callback)
 {
+  std::lock_guard<std::mutex> lg(consumer_mutex_);
   consume_callback_ = consume_callback;
-  if (!consumer_thread_.joinable()) {
-    is_stop_issued_ = false;
-    consumer_thread_ = std::thread(&CacheConsumer::exec_consuming, this);
-  }
 }
 
 void CacheConsumer::exec_consuming()
@@ -70,12 +69,12 @@ void CacheConsumer::exec_consuming()
     // swap producer buffer with consumer buffer
     message_cache_->wait_for_buffer();
 
-    // make sure to use consistent callback for each iteration
-    auto callback_for_this_loop = consume_callback_;
-
     // consume all the data from consumer buffer
     auto consumer_buffer = message_cache_->consumer_buffer();
-    callback_for_this_loop(consumer_buffer->data());
+    {
+      std::lock_guard<std::mutex> lg(consumer_mutex_);
+      consume_callback_(consumer_buffer->data());
+    }
     consumer_buffer->clear();
 
     if (flushing) {exit_flag = true;}  // this was the final run
