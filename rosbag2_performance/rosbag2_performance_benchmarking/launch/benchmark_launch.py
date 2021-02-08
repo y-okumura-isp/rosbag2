@@ -51,6 +51,7 @@ import pathlib
 import shutil
 import signal
 import sys
+import time
 
 from ament_index_python import get_package_share_directory
 
@@ -157,11 +158,13 @@ def _rosbag_proc_exited(event, context):
     """
     global _producer_idx, _result_writers, _rosbag_pid
 
+    time.sleep(1)
+
     # ROS2 bag returns 2 if terminated with SIGINT, which we expect here
     if event.returncode != 2:
         _rosbag_pid = None
         return [
-            launch.actions.LogInfo(msg='Rosbag2 record error. Shutting down benchmark.'),
+            launch.actions.LogInfo(msg='Rosbag2 record error {}. Shutting down benchmark.'.format(event.returncode)),
             launch.actions.EmitEvent(
                 event=launch.events.Shutdown(
                     reason='Rosbag2 record error'
@@ -395,30 +398,30 @@ def generate_launch_description():
 
             # ROS2 bag process for recording messages
             rosbag_args = []
-            if producer_param['storage_config_file']:
-                rosbag_args += [
-                    '--storage-config-file',
-                    str(producer_param['storage_config_file'])
-                ]
+            # if producer_param['storage_config_file']:
+            #     rosbag_args += [
+            #         '--storage-config-file',
+            #         str(producer_param['storage_config_file'])
+            #     ]
             if producer_param['cache']:
                 rosbag_args += [
                     '--max-cache-size',
                     str(producer_param['cache'])
                 ]
-            if producer_param['compression_format']:
-                rosbag_args += [
-                    '--compression-mode',
-                    'message'
-                ]
-                rosbag_args += [
-                    '--compression-format',
-                    str(producer_param['compression_format'])
-                ]
-            if producer_param['compression_queue_size']:
-                rosbag_args += [
-                    '--compression-queue-size',
-                    str(producer_param['compression_queue_size'])
-                ]
+            # if producer_param['compression_format']:
+            #     rosbag_args += [
+            #         '--compression-mode',
+            #         'message'
+            #     ]
+            #     rosbag_args += [
+            #         '--compression-format',
+            #         str(producer_param['compression_format'])
+            #     ]
+            # if producer_param['compression_queue_size']:
+            #     rosbag_args += [
+            #         '--compression-queue-size',
+            #         str(producer_param['compression_queue_size'])
+            #     ]
             if producer_param['compression_threads']:
                 rosbag_args += [
                     '--compression-threads',
@@ -435,7 +438,9 @@ def generate_launch_description():
                     'sigkill_timeout', default=60),
                 sigterm_timeout=launch.substitutions.LaunchConfiguration(
                     'sigterm_timeout', default=60),
-                cmd=['ros2', 'bag', 'record', '-a'] + rosbag_args
+                # cmd=['ros2', 'bag', 'record', '-a'] + rosbag_args
+                cmd=['/bin/bash',
+                     os.path.join(os.path.dirname(__file__), 'bag2record.sh')] + rosbag_args
             )
 
             # Result writer node walks through output metadata files and generates
