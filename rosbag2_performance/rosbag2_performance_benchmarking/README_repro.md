@@ -70,6 +70,7 @@ We tested the following patterns.
 (P2) call rolling `ros2 bag record` via `bag2record.sh`
   - similar results to (1) is expected
 (P3) call foxy `ros2 bag record` via `bag2record.sh`
+(P4) call foxy `ros2 bag record` of the latest rosbag2 `backport-latest-to-foxy` via `bag2record.sh`
 
 We change the number of publishers(`publishers_count`) and `qos_depth`.
 We run up to 100 publishers because `benchmark_: create_thread: benchmark_publi: no free slot` error occurs on `transport` mode.
@@ -123,13 +124,23 @@ It looks similar to the P1 result.
 **Result of P3**: call foxy `ros2 bag record` via `bag2record.sh`
 We used rosbag2 bc1e53eb60b2f603f02c65c43d6eae74bd644aa7.
 
-| No | version | publishers_count | qos.depth | record(10MB) | record(100MB) |
-|---:|---------|-----------------:|----------:|-------------:|--------------:|
-|  1 | foxy    |               10 |         5 |      100.24% |       100.24% |
-|  2 | foxy    |              100 |         5 |       78.85% |        76.62% |
-|  3 | foxy    |              100 |       500 |       89.42% |        91.88% |
-|  4 | foxy    |              100 |      5000 |       91.22% |        91.79% |
+| No | `publishers_count` | `qos.depth` | record(10MB) | record(100MB) |
+|---:|-------------------:|------------:|-------------:|--------------:|
+|  1 |                 10 |           5 |      100.24% |       100.24% |
+|  2 |                100 |           5 |       78.85% |        76.62% |
+|  3 |                100 |         500 |       89.42% |        91.88% |
+|  4 |                100 |        5000 |       91.22% |        91.79% |
 
 (2) shows the drop rate is higher than rolling.
 (3), (4) shows even if we prepared enough QoS depth, the drop still occured.
 
+**Result of P4**: Foxy `backport-latest-to-foxy` `ros2 bag record` via `bag2record.sh`
+
+| No | `publishers_count` | `qos.depth` | record(10MB) | record(100MB) |
+|---:|-------------------:|------------:|-------------:|--------------:|
+|  1 |                 10 |           5 |      100.24% |       100.24% |
+|  2 |                 20 |           5 |      100.12% |       100.12% |
+|  3 |                100 |           5 |       95.68% |        91.81% |
+|  4 |                100 |         500 |      100.02% |       100.02% |
+
+We can see the performance is similar to P1.
